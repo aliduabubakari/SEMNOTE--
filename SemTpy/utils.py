@@ -2,15 +2,14 @@ import json
 import pandas as pd
 from datetime import datetime
 
-
 # DATASET FUNCTIONS
 
 def cleanDatasetsData(datasetsList):
     """
-    permette di ripulire e formattare i dati riguardanti i dataset
+    Cleans and formats data related to datasets
 
-    :datasetsList: dati riguardanti i datasets
-    :return: un dataframe conentente le info dei datasets
+    :datasetsList: data regarding datasets
+    :return: a dataframe containing datasets information
     """
     datasetsList = json.loads(datasetsList)
     datasets = pd.DataFrame(
@@ -22,16 +21,15 @@ def cleanDatasetsData(datasetsList):
                                        dataset["nTables"], dataset["lastModifiedDate"]]
     return datasets
 
-# DATASET_TABLE
 
+# DATASET_TABLE
 
 def cleanDatasetsTables(tableList):
     """
-    permette di ripulire e formattare i dati delle tabelle 
-    contenute in un dataset
+    Cleans and formats data of tables contained in a dataset
 
-    :tableList: dati riguardanti le tabelle di un dataset
-    :return: un dataframe conentente le info delle tabelle
+    :tableList: data regarding tables of a dataset
+    :return: a dataframe containing tables information
     """
     tableList = json.loads(tableList)
     tables = pd.DataFrame(
@@ -41,15 +39,15 @@ def cleanDatasetsTables(tableList):
                                    table["nCols"], table["nRows"], table["lastModifiedDate"]]
     return tables
 
-# SERVICE FUNCTIONS
 
+# SERVICE FUNCTIONS
 
 def cleanServiceList(serviceList):
     """
-    permette di ripulire e formattare la lista dei servizi
+    Cleans and formats the service list
 
-    :serviceList: dati riguardanti i servizi disponibili
-    :return: dataframe contenente le info dei riconciliatori
+    :serviceList: data regarding available services
+    :return: dataframe containing reconciliators information
     """
     serviceList = serviceList
     reconciliators = pd.DataFrame(columns=["id", "relativeUrl", "name"])
@@ -58,16 +56,14 @@ def cleanServiceList(serviceList):
             reconciliator["id"], reconciliator["relativeUrl"], reconciliator["name"]]
     return reconciliators
 
-# EXTENDER FUNCTIONS
-
 
 def getExtender(idExtender, response):
     """
-    passando l'id dell'extender ritorna le principali info in formato json
+    Given the extender's ID, returns the main information in JSON format
 
-    :idExtender: id dell'extender in questione
-    :response: json contenente le informazioni degli extenders
-    :return: json contente le principali info dell'extender
+    :idExtender: the ID of the extender in question
+    :response: JSON containing information about the extenders
+    :return: JSON containing the main information of the extender
     """
     for extender in response:
         if extender['id'] == idExtender:
@@ -77,16 +73,16 @@ def getExtender(idExtender, response):
             }
     return None
 
-# RECONCILATOR FUNCTIONS
 
+# RECONCILIATOR FUNCTIONS
 
 def getReconciliator(idReconciliator, response):
     """
-    funzione che dato l'id del riconciliatore restituisce 
-    un dizionario con tutte le informazioni del servizio 
+    Function that, given the reconciliator's ID, returns a dictionary 
+    with all the service information
 
-    :idReconciliator: id del riconciliatore in questione
-    :return: un dizionario con le informazioni del riconciliatore
+    :idReconciliator: the ID of the reconciliator in question
+    :return: a dictionary with the reconciliator's information
     """
     for reconciliator in response:
         if reconciliator['id'] == idReconciliator:
@@ -101,11 +97,11 @@ def getReconciliator(idReconciliator, response):
 
 def getReconciliatorFromPrefix(prefixReconciliator, response):
     """
-    funzione che dato l'id del riconciliatore restituisce 
-    un dizionario con tutte le informazioni del servizio 
+    Function that, given the reconciliator's prefix, returns a dictionary 
+    with all the service information
 
-    :idReconciliator: id del riconciliatore in questione
-    :return: un dizionario con le informazioni del riconciliatore
+    :prefixReconciliator: the prefix of the reconciliator in question
+    :return: a dictionary with the reconciliator's information
     """
     for reconciliator in response:
         if reconciliator['prefix'] == prefixReconciliator:
@@ -122,11 +118,11 @@ def getReconciliatorFromPrefix(prefixReconciliator, response):
 
 def calculateScoreBoundCell(metadata):
     """
-    calcola il valore min e max dello score dei risultati ottenuti per
-    una singola cella
+    Calculates the min and max value of the score of the results obtained for
+    a single cell
 
-    :metadata: metadata di una singola cella
-    :return: un dizionario contenente i due valori
+    :metadata: metadata of a single cell
+    :return: a dictionary containing the two values
     """
     try:
         scoreList = [item['score'] for item in metadata]
@@ -137,11 +133,11 @@ def calculateScoreBoundCell(metadata):
 
 def createAnnotationMetaCell(metadata):
     """
-    crea il campo annotationMeta a livello di celle, 
-    che poi verrà inserito in tabella
+    Creates the annotationMeta field at the cell level, 
+    which will then be inserted into the table
 
-    :metadata: metadata a livello di cella
-    :return: il dizionario con i dati riguardanti annotationMeta
+    :metadata: cell-level metadata
+    :return: the dictionary with data regarding annotationMeta
     """
     scoreBound = calculateScoreBoundCell(metadata)
     return {'annotated': True,
@@ -152,10 +148,10 @@ def createAnnotationMetaCell(metadata):
 
 def valueMatchCell(metadata):
     """
-    restituisce se una cella ha ottenuto un match oppure no
+    Returns whether a cell has obtained a match or not
 
-    :metadata: metadata a livello di cella
-    :return: True o False in base all'avvenuto match
+    :metadata: cell-level metadata
+    :return: True or False based on the match occurrence
     """
     for item in metadata:
         if item['match'] == True:
@@ -165,13 +161,13 @@ def valueMatchCell(metadata):
 
 def createCellMetadataNameField(metadata, idReconciliator, reconciliatorResponse):
     """
-    refactor del campo name all'interno dei metadata a livello di cella
-    necessario per la visualizzazione all'interno di semtui
+    Refactor of the name field within cell-level metadata
+    necessary for visualization within SEMTUI
 
-    :metadata: metadata a livello di colonna
-    :idReconciliator: id del riconciliatore effettuato nell'operazione 
-    :columnName: nome della colonna su cui si sta lavorando
-    :return: metadata contenente il campo name nel nuovo formato
+    :metadata: column-level metadata
+    :idReconciliator: ID of the reconciliator performed in the operation
+    :reconciliatorResponse: response containing reconciliator information
+    :return: metadata containing the name field in the new format
     """
     for row in range(len(metadata)):
         try:
@@ -187,11 +183,11 @@ def createCellMetadataNameField(metadata, idReconciliator, reconciliatorResponse
 
 def updateMetadataCells(table, metadata):
     """
-    permette di inserire i nuovi metadata a livello di celle
+    Allows inserting new cell-level metadata
 
-    :table: tabella in formato raw
-    :metadata: metadata a livello di cella
-    :return: la tabella in formato raw con i metadata
+    :table: table in raw format
+    :metadata: cell-level metadata
+    :return: the table in raw format with metadata
     """
     for item in metadata:
         item["id"] = item["id"].split("$")
@@ -204,17 +200,17 @@ def updateMetadataCells(table, metadata):
             print("")
     return table
 
-
 def addExtendedCell(table, newColumnData, newColumnName, idReconciliator, reconciliatorResponse):
     """
-    crea ed inserisce all'interno della tabella (a livello di cella) i dati relativi alla nuova colonna 
-    aggiunta con l'estensione
+    Creates and inserts data related to the new column added with the extension into the table 
+    at the cell level.
 
-    :table: table in formato raw
-    :newColumnData: i dati ottenuti dall'extender
-    :newColumnName: il nome della nuova colonna da aggiungere in tabella
-    :idReconciliator: l'id del riconciliatore utilizzato nella colonna di partenza
-    :return: la tabella con i campi cell completati
+    :table: table in raw format
+    :newColumnData: data obtained from the extender
+    :newColumnName: the name of the new column to add in the table
+    :idReconciliator: the ID of the reconciliator used in the original column
+    :reconciliatorResponse: response containing reconciliator information
+    :return: the table with completed cell fields
     """
     rowKeys = newColumnData['cells']
     entity = checkEntity(newColumnData)
@@ -240,18 +236,16 @@ def addExtendedCell(table, newColumnData, newColumnName, idReconciliator, reconc
             table['rows'][rowKey]['cells'][newColumnName]['annotationMeta'] = {}
     return table
 
-
 # COLUMN OPERATIONS
-
 def calculateScoreBoundColumn(table, columnName, reconciliatorResponse):
     """
-    calcola il valore min e max dello score dei risultati ottenuti per
-    una singola colonna, inoltre restituisce se tutte le celle hanno ottenuto un match
-    o meno
+    Calculates the min and max value of the score of the results obtained for
+    a single column, also returns whether all cells obtained a match or not
 
-    :table: la tabella in formato raw
-    :columnName: il nome della colonna su cui lavorare
-    :return: un dizionario contenente i risultati
+    :table: the table in raw format
+    :columnName: the name of the column to work on
+    :reconciliatorResponse: response containing reconciliator information
+    :return: a dictionary containing the results
     """
     allScores = []
     matchValue = True
@@ -274,12 +268,12 @@ def calculateScoreBoundColumn(table, columnName, reconciliatorResponse):
 
 def calculateNCellsReconciliatedColumn(table, columnName):
     """
-    calcola il numero di celle riconciliate all'interno di 
-    una colonna
+    Calculates the number of reconciled cells within 
+    a column
 
-    :table: tabella in formato raw
-    :columnName: nome della colonna in questione
-    :return: il numero di celle riconciliate
+    :table: table in raw format
+    :columnName: name of the column in question
+    :return: the number of reconciled cells
     """
     cellsReconciliated = 0
     rowsIndex = table["rows"].keys()
@@ -294,15 +288,16 @@ def calculateNCellsReconciliatedColumn(table, columnName):
 
 def updateMetadataColumn(table, columnName, idReconciliator, metadata, reconciliatorResponse):
     """
-    permette di inserire i metadata a livello di colonna
+    Allows inserting column-level metadata
 
-    :table: tabella in formato raw
-    :columnName: nome della colonna su cui operare
-    :reconciliatorId: id del riconciliatore utilizzato
-    :metadata: metadata a livello di colonna
-    :return: la tabella con i nuovi metadata inseriti
+    :table: table in raw format
+    :columnName: name of the column to operate on
+    :idReconciliator: ID of the reconciliator used
+    :metadata: column-level metadata
+    :reconciliatorResponse: response containing reconciliator information
+    :return: the table with the new metadata inserted
     """
-    # chiedere i diversi stati
+    # inquire about the different states
     table['columns'][columnName]['status'] = 'pending'
     table['columns'][columnName]['kind'] = "entity"
     table['columns'][columnName]['context'] = createContextColumn(
@@ -316,11 +311,11 @@ def updateMetadataColumn(table, columnName, idReconciliator, metadata, reconcili
 
 def createMetadataFieldColumn(metadata):
     """
-    permette di creare il campo metadata per una colonna, che si
-    inserirà poi nei metadata generali a livello di colonna
+    Allows creating the metadata field for a column, which will
+    then be inserted into the general column-level metadata
 
-    :metadata: metadata a livello di colonna
-    :return: il campo metadata a livello di colonna
+    :metadata: column-level metadata
+    :return: the metadata field at the column level
     """
     return [
         {'id': '',
@@ -331,7 +326,6 @@ def createMetadataFieldColumn(metadata):
          'property':[],
          'type': getColumnMetadata(metadata)['type']}
     ]
-
 
 def createAnnotationMetaColumn(annotated, table, columnName, reconciliatorResponse):
     scoreBound = calculateScoreBoundColumn(
@@ -345,12 +339,12 @@ def createAnnotationMetaColumn(annotated, table, columnName, reconciliatorRespon
 
 def getColumnMetadata(metadata):
     """
-    permette di recuperare dati a livello di colonna, in particolare
-    l'entità corrispondenti alla colonna, i tipi della colonna,
-    e il valore match delle entità della colonna
+    Allows retrieving column-level data, particularly
+    the entity corresponding to the column, the column types,
+    and the match value of the entities in the column
 
-    :metadata: metadata della colonna ottenuti dal riconciliatore
-    :return: dizionario contenente i diversi dati
+    :metadata: column metadata obtained from the reconciliator
+    :return: dictionary containing the different data
     """
     entity = []
     types = []
@@ -373,15 +367,15 @@ def getColumnMetadata(metadata):
             matchMetadataValue = False
     return {'entity': entity, 'type': types, 'matchMetadataValue': matchMetadataValue}
 
-
 def createContextColumn(table, columnName, idReconciliator, reconciliatorResponse):
     """
-    crea il campo context a livello di colonna recuperando i dati necessari
+    Creates the context field at the column level by retrieving the necessary data
 
-    :table: table in formato raw
-    :columnName: il nome della colonna di cui si sta creando il contesto
-    :idReconciliator: l'id del riconciliatore utilizzato per la colonna
-    :return: il campo context della colonna
+    :table: table in raw format
+    :columnName: the name of the column for which the context is being created
+    :idReconciliator: the ID of the reconciliator used for the column
+    :reconciliatorResponse: response containing reconciliator information
+    :return: the context field of the column
     """
     nCells = len(table["rows"].keys())
     reconciliator = getReconciliator(idReconciliator, reconciliatorResponse)
@@ -392,23 +386,24 @@ def createContextColumn(table, columnName, idReconciliator, reconciliatorRespons
             }}
 
 def checkEntity(newColumnData):
-    righe = newColumnData['cells'].keys()
+    rows = newColumnData['cells'].keys()
     entity = False
-    for riga in righe:
-        if 'metadata' in newColumnData['cells'][riga] and newColumnData['cells'][riga]['metadata'] != []:
+    for row in rows:
+        if 'metadata' in newColumnData['cells'][row] and newColumnData['cells'][row]['metadata'] != []:
             entity = True
     return entity
 
 def addExtendedColumn(table, newColumnData, newColumnName, idReconciliator, reconciliatorResponse):
     """
-    crea ed inserisce all'interno della tabella (a livello di colonna) i dati relativi alla nuova colonna 
-    aggiunta con l'estensione
+    Creates and inserts data into the table (at the column level) related to the new column 
+    added with the extension
 
-    :table: table in formato raw
-    :newColumnData: i dati ottenuti dall'extender
-    :newColumnName: il nome della nuova colonna da aggiungere in tabella
-    :idReconciliator: l'id del riconciliatore utilizzato nella colonna di partenza
-    :return: la tabella con i campi column completati
+    :table: table in raw format
+    :newColumnData: data obtained from the extender
+    :newColumnName: the name of the new column to add in the table
+    :idReconciliator: the ID of the reconciliator used in the original column
+    :reconciliatorResponse: response containing reconciliator information
+    :return: the table with completed column fields
     """
     entity = checkEntity(newColumnData)
     print(entity)
@@ -435,16 +430,15 @@ def addExtendedColumn(table, newColumnData, newColumnName, idReconciliator, reco
         table['columns'][newColumnName]['context'] = {}
     return table
 
-
 def addExtendedColumns(table, extensionData, newColumnsName, reconciliatorResponse):
     """
-    permette di iterare le operazioni di inserimento di una singola colonna per
-    tutte le proprietà da inserire 
+    Allows iterating the operations to insert a single column for
+    all the properties to be inserted
 
-    :table: table in formato raw
-    :extensionData: i dati ottenuti dall'extender
-    :newColumnsName: i nomi delle nuove colonne da inserire nella tabella
-    :return: la tabella con i nuovi campi inseriti
+    :table: table in raw format
+    :extensionData: data obtained from the extender
+    :newColumnsName: names of the new columns to insert into the table
+    :return: the table with the new fields inserted
     """
     newColumns = extensionData['columns'].keys()
     i = 0
@@ -461,12 +455,12 @@ def addExtendedColumns(table, extensionData, newColumnsName, reconciliatorRespon
 
 def getColumnIdReconciliator(table, columnName, reconciliatorResponse):
     """
-    specficando la colonna di interesse ritorna l'id del riconciliatore, 
-    se la colonna è riconcliata
+    Specifying the column of interest returns the reconciliator's ID,
+    if the column is reconciled
 
-    :table: tabella in formato raw
-    :columnName: nome della colonna in questione
-    :return: id del riconciliatore utilizzato
+    :table: table in raw format
+    :columnName: name of the column in question
+    :return: the ID of the reconciliator used
     """
     prefix = list(table['columns'][columnName]['context'].keys())
     return getReconciliatorFromPrefix(prefix[0], reconciliatorResponse)['id']
@@ -476,11 +470,11 @@ def getColumnIdReconciliator(table, columnName, reconciliatorResponse):
 
 def calculateScoreBoundTable(table):
     """
-    calcola il valore min e max dello score ottenuto nei
-    risultati di tutta la tabella
+    Calculates the minimum and maximum score obtained in
+    the results of the entire table
 
-    :table: la tabella in formato raw
-    :return: un dizionario contenente i due valori
+    :table: the table in raw format
+    :return: a dictionary containing the two values
     """
     allScores = []
     reconciliateColumns = [column for column in table['columns'].keys(
@@ -502,11 +496,11 @@ def calculateScoreBoundTable(table):
 
 def calculateNCellsReconciliated(table):
     """
-    calcola il numero di celle riconciliate all'interno della
-    tabella
+    Calculates the number of reconciled cells within the
+    table
 
-    :table: la tabella in formato raw
-    :return: il numero di celle riconciliate
+    :table: the table in raw format
+    :return: the number of reconciled cells
     """
     cellsReconciliated = 0
     columnsName = table['columns'].keys()
@@ -523,10 +517,10 @@ def calculateNCellsReconciliated(table):
 
 def updateMetadataTable(table):
     """
-    permette di inserire i metadata a livello di tabella
+    Inserts metadata at the table level
 
-    :table: tabella in formato raw
-    :return: la tabella con i nuovi metadata inseriti
+    :table: table in raw format
+    :return: the table with the new metadata inserted
     """
     scoreBound = calculateScoreBoundTable(table)
     table['table']['minMetaScore'] = scoreBound['lowestScore']
@@ -539,11 +533,10 @@ def updateMetadataTable(table):
 
 def createUpdatePayload(table):
     """
-    permette di creare il payload necessario a compiere l'operazione
-    di update della tabella
+    Creates the payload required to perform the table update operation
 
-    :table: table in formato raw
-    :return: payload della richiesta
+    :table: table in raw format
+    :return: request payload
     """
     payload = {"tableInstance": {}, "columns": {}, "rows": {}}
     payload["tableInstance"] = {'id': table["table"]["id"],
@@ -558,18 +551,16 @@ def createUpdatePayload(table):
     payload["columns"]["allIds"] = list(table["columns"].keys())
     payload["rows"]["allIds"] = list(table["rows"].keys())
     payload["rows"]["byId"] = table["rows"]
-    payload["columns"]["byId"] = table["columns"]
-    return payload
-
+   
 
 def createReconciliationPayload(table, columnName, idReconciliator):
     """
-    crea il payload per la richiesta di riconciliazione
+    Creates the payload for the reconciliation request
 
-    :table: table in formato raw
-    :columnName: il nome della colonna da riconciliare
-    :idReconciliator: l'id del servizio di riconciliazione da utilizzare
-    :return: payload della richiesta
+    :table: table in raw format
+    :columnName: the name of the column to reconcile
+    :idReconciliator: the id of the reconciliation service to use
+    :return: the request payload
     """
     rows = []
     rows.append({"id": 'column$index', "label": columnName})
@@ -581,13 +572,13 @@ def createReconciliationPayload(table, columnName, idReconciliator):
 
 def createExensionPayload(table, reconciliatedColumnName, idExtender, properties):
     """
-    crea il payload per la richiesta di estensione 
+    Creates the payload for the extension request
 
-    :table: table in formato raw
-    :reconciliatedColumnName: il nome della colonna contenente id riconciliato
-    :extenderId: l'id del servizio di riconciliazione da utilizzare
-    :properties: le proprietà da utilizzare sottoforma di lista
-    :return: payload della richiesta
+    :table: table in raw format
+    :reconciliatedColumnName: the name of the column containing reconciled id
+    :idExtender: the id of the extension service to use
+    :properties: the properties to use in a list format
+    :return: the request payload
     """
     items = {}
     rows = table['rows'].keys()
@@ -611,11 +602,11 @@ def createExensionPayload(table, reconciliatedColumnName, idExtender, properties
 
 def parseNameMetadata(metadata, uriReconciliator):
     """
-    converte nel giusto formato il nome da inserire nel campo metadata
+    Converts the name into the correct format to be inserted into the metadata field
 
-    :metadata: metadati della cella/colonna
-    :uriReconciliator: l'uri del KG di appartenenza
-    :return: i metadata in formato corretto
+    :metadata: cell/column metadata
+    :uriReconciliator: the URI of the affiliated knowledge graph
+    :return: metadata in the correct format
     """
     for item in metadata:
         item['entity'] = parseNameEntities(item['entity'], uriReconciliator)
@@ -624,11 +615,11 @@ def parseNameMetadata(metadata, uriReconciliator):
 
 def parseNameEntities(entities, uriReconciliator):
     """
-    funzione iterata in parseNameMetadata, lavora a livello di entità
+    Function iterated in parseNameMetadata, works at the entity level
 
-    :entities: entità presenti nella cella/colonna
-    :uriReconciliator: l'uri del KG di appartenenza
-    :return: le entità in formato corretto
+    :entities: entities present in the cell/column
+    :uriReconciliator: the URI of the affiliated knowledge graph
+    :return: entities in the correct format
     """
     for entity in entities:
         entity['name'] = parseNameField(
@@ -638,13 +629,12 @@ def parseNameEntities(entities, uriReconciliator):
 
 def parseNameField(name, uriReconciliator, idEntity):
     """
-    funzione vera e propria che cambia il formato del nome, in quello richiesto
-    per la visualizzazione 
+    The actual function that changes the name format to the one required for visualization
 
-    :name: nome dell'entità
-    :uriReconciliator: l'uri del KG di appartenenza
-    :idEntity: id dell'entità
-    :return: il nome in formato corretto
+    :name: entity name
+    :uriReconciliator: the URI of the affiliated knowledge graph
+    :idEntity: entity ID
+    :return: the name in the correct format
     """
     return {
         'value': name,
@@ -654,17 +644,15 @@ def parseNameField(name, uriReconciliator, idEntity):
 
 def parseTable(table):
     """
-    permette di ottenere la tabella in formato parsed, sottoforma di 
-    dataframe
+    Obtains the table in parsed format, as a dataframe
 
-    :table: table in formato raw
-    :return: un dataframe che rappresenta la tabella in formato parsed
+    :table: table in raw format
+    :return: a dataframe representing the table in parsed format
     """
-    # da completare
     table = json.loads(table)
-    columnName = ["tableIndex"]
-    columnName.extend(list(table["columns"].keys()))
-    dfTable = pd.DataFrame(columns=columnName)
+    columnNames = ["tableIndex"]
+    columnNames.extend(list(table["columns"].keys()))
+    dfTable = pd.DataFrame(columns=columnNames)
     for rowIndex in table["rows"].keys():
         row = []
         row.append(table["rows"][rowIndex]["id"])

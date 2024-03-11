@@ -4,75 +4,75 @@ import utils
 
 SEMTUI_URI = ""
 
-
 def getDatasetsList():
     """
-    mostra i dataset presenti nel backend
+    Show the datasets available in the backend
 
-    :return: dataframe contenente i dataset con info
+    :return: dataframe containing dataset information
     """
     response = requests.get(SEMTUI_URI+'/dataset/')
     return utils.cleanDatasetsData(response.text)
 
 def getDataset(idDataset):
     """
-    mostra le info generali del dataset
+    Show general information about the dataset
 
-    :idDataset: l'id del dataset contenuto nel backend
-    :return: dataframe contenente le info generali del dataset
+    :idDataset: the dataset's ID in the backend
+    :return: dataframe containing general information about the dataset
     """
     response = requests.get(SEMTUI_URI + 'dataset/' + str(idDataset))
     return utils.cleanDatasetsData(response.text)
 
+
 def getDatasetTables(idDataset):
     """
-    mostra una lista delle tabelle contenute nel dataset
+    Show a list of tables contained in the dataset
 
-    :idDataset: l'id del dataset contenuto nel backend
-    :return: dataframe contenente la lista delle tabelle e delle relative info
+    :idDataset: the dataset's ID in the backend
+    :return: dataframe containing the list of tables and their respective information
     """
     response = requests.get(SEMTUI_URI + 'dataset/' + str(idDataset) + '/table')
     return utils.cleanDatasetsTables(response.text)
 
 def getTable(idDataset, idTable):
     """
-    recupera dal backend una tabella, in due differenti formati:
-        -raw: la tabella in formato JSON
-        -parsed: la tabella in forrmato dataframe
+    Retrieve a table from the backend in two different formats:
+        - raw: the table in JSON format
+        - parsed: the table in dataframe format
 
-    :idDataset: l'id del dataset contenuto nel backend
-    :idTable: l'id della tabella da recuperare
-    :return: la tabella nei due formati descritti
+    :idDataset: the dataset's ID in the backend
+    :idTable: the ID of the table to retrieve
+    :return: the table in the two described formats
     """
     response = requests.get(SEMTUI_URI + 'dataset/' + str(idDataset)+'/table/'+str(idTable))
-    return ({'raw': json.loads(response.text)})
+    return {'raw': json.loads(response.text)}
 
 def getExtendersList():
     """
-    fornisce una lista degli extender disponibili con le info principali
+    Provides a list of available extenders with their main information
 
-    :return: un dataframe contenente gli extender e le info 
+    :return: a dataframe containing extenders and their information
     """
     response = getExtenderData()
     return utils.cleanServiceList(response)
 
 def getReconciliatorsList():
     """
-    fornisce una lista dei riconciliatori disponibili con le info principali
+    Provides a list of available reconciliators with their main information
 
-    :return: un dataframe contenente i riconciliatori e le info
+    :return: a dataframe containing reconciliators and their information
     """
     response = getReconciliatorData()
     return utils.cleanServiceList(response)
 
 def addTable(idDataset, filePath, tableName):
     """
-    permette di aggiungere una tabella ad un dataset presente nel backend
+    Allows adding a table to a dataset in the backend
 
-    :idDataset: l'id del dataset contenuto nel backend
-    :filePath: file .csv da caricare come tabella 
-    :tableName: nome che la tabella avrà nel dataset 
-    :return: stato del caricamento
+    :idDataset: the dataset's ID in the backend
+    :filePath: .csv file to be loaded as a table
+    :tableName: the name the table will have in the dataset
+    :return: loading status
     """
     url = SEMTUI_URI + 'dataset/' + str(idDataset) + '/table'
     files = {'file': open(filePath, 'rb')}
@@ -81,21 +81,21 @@ def addTable(idDataset, filePath, tableName):
 
 def reconcile(table, columnName, idReconciliator):
     """
-    riconcilia una colonna con il riconciliatore scelto
+    Reconciles a column with the chosen reconciliator
 
-    :table: la tabella con la colonna da riconciliare 
-    :columnName: il nome della colonna da riconcilare 
-    :idReconcilator: id riconciliatore da utilizzare 
-    :return: tabella con colonna riconciliata
+    :table: the table with the column to reconcile 
+    :columnName: the name of the column to reconcile 
+    :idReconciliator: ID of the reconciliator to use 
+    :return: table with reconciled column
     """
     table = table['raw']
     reconciliatorResponse = getReconciliatorData()
-    #creazione della richiesta
+    # creating the request
     url = SEMTUI_URI + '/reconciliators' + str(utils.getReconciliator(idReconciliator, reconciliatorResponse)['relativeUrl'])
     payload = utils.createReconciliationPayload(table, columnName, idReconciliator)
     response = requests.post(url, json=payload)
     response = json.loads(response.text)
-    #inserimento dati in tabella
+    # inserting data into the table
     metadata = utils.createCellMetadataNameField(response, idReconciliator, reconciliatorResponse)
     table = utils.updateMetadataCells(table, metadata)
     table = utils.updateMetadataColumn(table, columnName, idReconciliator, metadata, reconciliatorResponse)
@@ -104,11 +104,10 @@ def reconcile(table, columnName, idReconciliator):
 
 def updateTable(table):
     """
-    permette di aggiornare la tabella nel backend inserendo la tabella con le nuove
-    informazioni
+    Allows updating the table in the backend by inserting the table with the new information
 
-    :table: la tabella da aggiornare all'interno del backend
-    :return: stato dell'aggiornamento
+    :table: the table to be updated within the backend
+    :return: update status
     """
     table = table['raw']
     url = SEMTUI_URI + 'dataset/' + str(table["table"]["id"])+'/table/'+str(table["table"]["idDataset"])
@@ -118,15 +117,14 @@ def updateTable(table):
 
 def extendColumn(table, reconciliatedColumnName, idExtender, properties, newColumnsName):
     """
-    permette di estendere come nuova colonna le proprietà specificate, presenti nel
-    Knowledge graph
+    Allows extending specified properties present in the Knowledge Graph as a new column
 
-    :table: la tabella contente i dati
-    :reconciliatedColumnName: la colonna che contiene l'id nel KG
-    :idExtender: l'extender da utilizzare per l'estensione
-    :properties: le proprietà da estendere in tabella
-    :newColumnsName: il nome della nuova colonna da aggiungere
-    :return: la tabella estesa
+    :table: the table containing the data
+    :reconciliatedColumnName: the column containing the ID in the KG
+    :idExtender: the extender to use for extension
+    :properties: the properties to extend in the table
+    :newColumnsName: the name of the new column to add
+    :return: the extended table
     """
     reconciliatorResponse = getReconciliatorData()
     table = table["raw"]
@@ -139,18 +137,19 @@ def extendColumn(table, reconciliatedColumnName, idExtender, properties, newColu
 
 def getExtenderData():
     """
-    permette di recuperare i dati degli extender dal backend
+    Retrieves extender data from the backend
 
-    :return: i dati dei servizi di estesione in formato json
+    :return: data of extension services in JSON format
     """
     response = requests.get(SEMTUI_URI + '/extenders/list')
     return json.loads(response.text)
 
 def getReconciliatorData():
     """
-    permette di recuperare i dati dei riconciliatori dal backend
+    Retrieves reconciliator data from the backend
 
-    :return: i dati dei servizi di riconciliatori in formato json
+    :return: data of reconciliator services in JSON format
     """
     response = requests.get(SEMTUI_URI + '/reconciliators/list')
     return json.loads(response.text)
+
