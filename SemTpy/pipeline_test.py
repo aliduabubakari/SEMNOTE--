@@ -98,7 +98,7 @@ def save_data(data, path):
 # Define the path to your data file and API key
 #path = 'C:\\Users\\user\\Documents\\BICOCCA\SEMNOTE--\\SemTpy\\Museums.csv'
 path = 'C:\\Users\\user\\Documents\\BICOCCA\\SEMNOTE--\\SemTpy\\Museums.csv'
-api_key = '9HxvlAKEy7YhmiYLVcaNLxhYjuw1D4Emd05KnuOHrBE'
+api_key = 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx'
 
 # Load data
 df = load_data(path)

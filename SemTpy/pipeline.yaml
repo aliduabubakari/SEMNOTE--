@@ -14,7 +14,7 @@ pipeline:
     input: "cleaned_data"
     parameters: 
       source: "https://geocode.search.hereapi.com/v1/geocode"
-      api_key: "9HxvlAKEy7YhmiYLVcaNLxhYjuw1D4Emd05KnuOHrBE"
+      api_key: "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
     output: "enriched_data"
 
   - step: "save_data"
