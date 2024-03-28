@@ -1,6 +1,6 @@
 import semtui
 
-semtui.SEMTUI_URI = "http://localhost:3002/api/"
+semtui.SEMTUI_URI = "http://localhost:3003/api/"
 
 table = semtui.getTable(29,253)
 

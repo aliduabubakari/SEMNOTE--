@@ -2,24 +2,53 @@ import json
 import pandas as pd
 from datetime import datetime
 
-# DATASET FUNCTIONS
+import json
 
 def cleanDatasetsData(datasetsList):
     """
-    Cleans and formats data related to datasets
+    Cleans and formats data related to datasets. It ensures that missing data is handled gracefully
+    and constructs a list of dictionaries with the expected structure.
 
-    :datasetsList: data regarding datasets
-    :return: a dataframe containing datasets information
+    :param datasetsList: JSON string data regarding datasets.
+    :return: A list of dictionaries containing dataset information with keys ["id", "name", "nTables", "lastModifiedDate"].
+             If any key is missing in a dataset entry, a default value is used.
     """
-    datasetsList = json.loads(datasetsList)
-    datasets = pd.DataFrame(
-        columns=["id", "name", "nTables", "lastModifiedDate"])
-    if "collection" not in datasetsList:
-        datasetsList = {'collection': [datasetsList]}
-    for dataset in datasetsList["collection"]:
-        datasets.loc[len(datasets)] = [dataset["id"], dataset["name"],
-                                       dataset["nTables"], dataset["lastModifiedDate"]]
-    return datasets
+    try:
+        # Attempt to parse the JSON string into a Python dictionary
+        datasetsList = json.loads(datasetsList)
+        
+        # Prepare a list to hold dataset entries
+        data_entries = []
+        
+        # Ensure datasetsList is structured as expected
+        if "collection" not in datasetsList:
+            raise ValueError("Expected 'collection' key not found in datasets list.")
+        
+        for dataset in datasetsList["collection"]:
+            # Construct the dataset entry dictionary
+            data_entry = {
+                "id": dataset.get("id", "N/A"),
+                "name": dataset.get("name", "Unnamed"),
+                "nTables": dataset.get("nTables", 0),
+                "lastModifiedDate": dataset.get("lastModifiedDate", "Unknown")
+            }
+            
+            # Append the dataset information as a new entry in the list
+            data_entries.append(data_entry)
+        
+        return data_entries
+    except json.JSONDecodeError:
+        # Handle JSON parsing errors
+        print("Error parsing JSON from datasets list. Please check the input format.")
+        return []  # Return an empty list as a fallback
+    except ValueError as e:
+        # Handle other value errors (like missing 'collection' key)
+        print(f"Value error: {e}")
+        return []  # Return an empty list as a fallback
+    except Exception as e:
+        # Handle unexpected errors
+        print(f"An unexpected error occurred: {e}")
+        return []  # Return an empty list as a fallback
 
 
 # DATASET_TABLE
@@ -551,6 +580,8 @@ def createUpdatePayload(table):
     payload["columns"]["allIds"] = list(table["columns"].keys())
     payload["rows"]["allIds"] = list(table["rows"].keys())
     payload["rows"]["byId"] = table["rows"]
+    return payload
+
    
 
 def createReconciliationPayload(table, columnName, idReconciliator):

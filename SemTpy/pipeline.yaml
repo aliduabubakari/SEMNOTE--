@@ -1,0 +1,23 @@
+pipeline:
+  - step: "load_data"
+    parameters: 
+      path: "C:\\Users\\user\\Documents\\BICOCCA\\SEMNOTE--\\SemTpy\\Museums.csv"
+    output: "raw_data"
+
+  - step: "clean_data"
+    input: "raw_data"
+    parameters: 
+      method: "drop_missing"
+    output: "cleaned_data"
+
+  - step: "enrich_data"
+    input: "cleaned_data"
+    parameters: 
+      source: "https://geocode.search.hereapi.com/v1/geocode"
+      api_key: "9HxvlAKEy7YhmiYLVcaNLxhYjuw1D4Emd05KnuOHrBE"
+    output: "enriched_data"
+
+  - step: "save_data"
+    input: "enriched_data"
+    parameters: 
+      path: "C:\\Users\\user\\Documents\\BICOCCA\\SEMNOTE--\\SemTpy\\output.csv"
